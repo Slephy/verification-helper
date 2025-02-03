@@ -252,8 +252,10 @@ class Bundler:
     # path を解決する
     # see: https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html#Directory-Options
     def _resolve(self, path: pathlib.Path, *, included_from: pathlib.Path) -> pathlib.Path:
-        if (included_from.parent / path).exists():
-            return (included_from.parent / path).resolve()
+        while included_from.parent != included_from:
+            if (included_from.parent / path).exists():
+                return (included_from.parent / path).resolve()
+            included_from = included_from.parent
         for dir_ in self.iquotes:
             if (dir_ / path).exists():
                 return (dir_ / path).resolve()
@@ -382,6 +384,8 @@ class Bundler:
                         else:
                             self.pragma_once_system.add(included)
                             self.result_lines.append(line)
+                    elif (pathlib.Path('/usr/local/include') / included).exists():
+                        self.update(pathlib.Path('/usr/local/include') / included)
                     else:
                         # possibly: bits/*, tr2/* boost/*, c-posix library, etc.
                         self.pragma_once_system.add(included)
