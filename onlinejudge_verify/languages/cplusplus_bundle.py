@@ -384,6 +384,8 @@ class Bundler:
                         else:
                             self.pragma_once_system.add(included)
                             self.result_lines.append(line)
+                    elif included.startswith('boost/'):
+                        self.result_lines.append(line)
                     elif (pathlib.Path('/usr/local/include') / included).exists():
                         self.update(pathlib.Path('/usr/local/include') / included)
                     else:
